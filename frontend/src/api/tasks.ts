@@ -2,8 +2,9 @@ export interface Task {
   id?: number;
   title: string;
   description?: string;
-  status: "TODO" | "DOING" | "DONE";
+  status: "BACKLOG" | "TODO" | "DOING" | "DONE";
 }
+
 
 const BASE_URL = "http://localhost:8080";
 

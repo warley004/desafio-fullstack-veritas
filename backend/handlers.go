@@ -100,7 +100,7 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 
 	// Se não mandar status, cai em TODO por padrão
 	if strings.TrimSpace(input.Status) == "" {
-		input.Status = StatusTodo
+    input.Status = StatusBacklog
 	}
 
 	if err := input.Validate(); err != nil {

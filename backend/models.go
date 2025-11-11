@@ -15,16 +15,19 @@ type Task struct {
 }
 
 const (
-	StatusTodo  = "TODO"
-	StatusDoing = "DOING"
-	StatusDone  = "DONE"
+	StatusBacklog = "BACKLOG"
+	StatusTodo    = "TODO"
+	StatusDoing   = "DOING"
+	StatusDone    = "DONE"
 )
 
 var validStatuses = map[string]bool{
-	StatusTodo:  true,
-	StatusDoing: true,
-	StatusDone:  true,
+	StatusBacklog: true,
+	StatusTodo:    true,
+	StatusDoing:   true,
+	StatusDone:    true,
 }
+
 
 // Validate garante as regras básicas:
 // - título obrigatório
@@ -40,8 +43,6 @@ func (t *Task) Validate() error {
 		return fmt.Errorf("status inválido: %s", t.Status)
 	}
 
-	// Normaliza o status para o formato canônico
 	t.Status = status
-
 	return nil
 }

@@ -9,7 +9,7 @@ export default function Board() {
     getTasks().then(setTasks).catch(console.error);
   }, []);
 
-  const statuses = ["TODO", "DOING", "DONE"];
+  const statuses: Task["status"][] = ["BACKLOG", "TODO", "DOING", "DONE"];
 
   return (
     <div style={{ display: "flex", gap: "1rem", padding: "1rem" }}>
