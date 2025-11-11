@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { getTasks } from "../api/tasks";
 import type { Task } from "../api/tasks";
 
+const STATUS_CONFIG: { id: Task["status"]; label: string }[] = [
+  { id: "BACKLOG", label: "Backlog" },
+  { id: "TODO", label: "To Do" },
+  { id: "DOING", label: "In Progress" },
+  { id: "DONE", label: "Done" },
+];
+
 export default function Board() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -9,41 +16,53 @@ export default function Board() {
     getTasks().then(setTasks).catch(console.error);
   }, []);
 
-  const statuses: Task["status"][] = ["BACKLOG", "TODO", "DOING", "DONE"];
-
   return (
-    <div style={{ display: "flex", gap: "1rem", padding: "1rem" }}>
-      {statuses.map((status) => (
-        <div key={status} style={{ flex: 1 }}>
-          <h2>{status}</h2>
-          <div
-            style={{
-              background: "#f4f4f4",
-              borderRadius: "8px",
-              minHeight: "200px",
-              padding: "8px",
-            }}
-          >
-            {tasks
-              .filter((t) => t.status === status)
-              .map((t) => (
-                <div
-                  key={t.id}
-                  style={{
-                    background: "white",
-                    borderRadius: "6px",
-                    padding: "8px",
-                    marginBottom: "8px",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <strong>{t.title}</strong>
-                  <p style={{ fontSize: "0.9rem" }}>{t.description}</p>
-                </div>
-              ))}
-          </div>
+    <div className="board">
+      <header className="board-header">
+        <div className="board-header-left">
+          <h1 className="board-title">Kanban</h1>
+          <span className="board-subtitle">Project Name · Team Name</span>
         </div>
-      ))}
+
+        <div className="board-header-right">
+          <input
+            className="search-input"
+            placeholder="Search"
+            type="search"
+          />
+          <button className="secondary-button">Filter</button>
+          <button className="secondary-button">Sort</button>
+          <button className="primary-button">+ New Board</button>
+        </div>
+      </header>
+
+      <section className="columns">
+        {STATUS_CONFIG.map(({ id, label }) => {
+          const columnTasks = tasks.filter((t) => t.status === id);
+
+          return (
+            <div key={id} className="column">
+              <div className="column-header">
+                <span className="column-title">{label}</span>
+                <span className="column-count">{columnTasks.length}</span>
+              </div>
+
+              <div className="column-body">
+                {columnTasks.map((t) => (
+                  <article key={t.id} className="task-card">
+                    <div className="task-title">{t.title}</div>
+                    {t.description && (
+                      <div className="task-description">{t.description}</div>
+                    )}
+                  </article>
+                ))}
+
+                <button className="add-task-button">+ New</button>
+              </div>
+            </div>
+          );
+        })}
+      </section>
     </div>
   );
 }
