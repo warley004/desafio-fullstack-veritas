@@ -9,7 +9,12 @@ const STATUS_CONFIG: { id: Task["status"]; label: string }[] = [
   { id: "DONE", label: "Done" },
 ];
 
-export default function Board() {
+interface BoardProps {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+}
+
+export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -55,6 +60,10 @@ export default function Board() {
           <button className="secondary-button" onClick={toggleSort}>
             {sortOrder === "asc" ? "Sort A–Z" : "Sort Z–A"}
           </button>
+
+          <button className="secondary-button" onClick={toggleDarkMode}>
+            {darkMode ? "☀️ Light" : "🌙 Dark"}
+          </button>
         </div>
       </header>
 
@@ -62,7 +71,7 @@ export default function Board() {
         {STATUS_CONFIG.map(({ id, label }) => {
           const columnTasks = filteredTasks
             .filter((t) => t.status === id)
-            .slice() // copia pra não mexer no array original
+            .slice()
             .sort((a, b) => {
               const aTitle = a.title.toLowerCase();
               const bTitle = b.title.toLowerCase();

@@ -1,8 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  color: #111827;
-  background-color: #e5e7f5;
+  /* Paleta Veritas-inspired (sóbria, corporativa) */
+  --v-page-bg: #f5f5f7;
+  --v-grid-line: rgba(15, 23, 42, 0.04);
+
+  --v-board-bg: #ffffff;
+  --v-board-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+
+  --v-primary: #111827;        /* textos principais */
+  --v-accent: #c09f80;         /* toque quente (botões/bordas) */
+
+  --v-chip-bg: #edf1f7;        /* chips, botõezinhos */
+  --v-column-bg: #f5f7fb;
+  --v-task-bg: #ffffff;
+
+  --v-text-main: #111827;
+  --v-text-muted: #6b7280;
+  --v-border: #e5e7eb;
+}
+
+body.dark {
+  /* Mesmas estruturas, mas em dark */
+  --v-page-bg: #020617;
+  --v-grid-line: rgba(148, 163, 184, 0.12);
+
+  --v-board-bg: #020617;
+  --v-board-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+
+  --v-primary: #e5e7eb;
+  --v-accent: #c09f80;
+
+  --v-chip-bg: #0f172a;
+  --v-column-bg: #020617;
+  --v-task-bg: #020617;
+
+  --v-text-main: #e5e7eb;
+  --v-text-muted: #9ca3af;
+  --v-border: #1f2937;
+}
+
+/* Base */
+:root {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: var(--v-text-main);
+  background-color: var(--v-page-bg);
 }
 
 *,
@@ -13,6 +56,7 @@
 
 body {
   margin: 0;
+  background-color: var(--v-page-bg);
 }
 
 button {
