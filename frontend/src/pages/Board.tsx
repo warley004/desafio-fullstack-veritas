@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTasks } from "../api/tasks";
+import { getTasks, createTask } from "../api/tasks";
 import type { Task } from "../api/tasks";
 
 const STATUS_CONFIG: { id: Task["status"]; label: string }[] = [
@@ -18,6 +18,13 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  // estado do form de criação
+  const [creatingForStatus, setCreatingForStatus] =
+    useState<Task["status"] | null>(null);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     getTasks().then(setTasks).catch(console.error);
@@ -38,6 +45,44 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
 
   function toggleSort() {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  }
+
+  function startCreate(status: Task["status"]) {
+    setCreatingForStatus(status);
+    setNewTitle("");
+    setNewDescription("");
+  }
+
+  function cancelCreate() {
+    setCreatingForStatus(null);
+    setNewTitle("");
+    setNewDescription("");
+    setIsCreating(false);
+  }
+
+  async function handleCreateSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!creatingForStatus) return;
+    if (!newTitle.trim()) {
+      alert("O título é obrigatório.");
+      return;
+    }
+
+    try {
+      setIsCreating(true);
+      const created = await createTask({
+        title: newTitle.trim(),
+        description: newDescription.trim() || undefined,
+        status: creatingForStatus,
+      });
+
+      setTasks((prev) => [...prev, created]);
+      cancelCreate();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao criar tarefa. Tente novamente.");
+      setIsCreating(false);
+    }
   }
 
   return (
@@ -81,6 +126,8 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
               return 0;
             });
 
+          const isCreatingHere = creatingForStatus === id;
+
           return (
             <div key={id} className="column">
               <div className="column-header">
@@ -98,7 +145,52 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                   </article>
                 ))}
 
-                <button className="add-task-button">+ New</button>
+                {isCreatingHere ? (
+                  <form
+                    className="new-task-form"
+                    onSubmit={handleCreateSubmit}
+                  >
+                    <input
+                      className="new-task-input"
+                      placeholder="Task title"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      autoFocus
+                    />
+                    <textarea
+                      className="new-task-textarea"
+                      placeholder="Description (optional)"
+                      value={newDescription}
+                      onChange={(e) => setNewDescription(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="new-task-actions">
+                      <button
+                        type="submit"
+                        className="primary-button"
+                        disabled={isCreating}
+                      >
+                        {isCreating ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        onClick={cancelCreate}
+                        disabled={isCreating}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <button
+                    className="add-task-button"
+                    type="button"
+                    onClick={() => startCreate(id)}
+                  >
+                    + New
+                  </button>
+                )}
               </div>
             </div>
           );

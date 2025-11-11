@@ -189,3 +189,72 @@
 .add-task-button:hover {
   background: rgba(148, 163, 184, 0.25);
 }
+
+/* FORM NOVA TAREFA */
+
+.new-task-form {
+  background: var(--v-task-bg);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.new-task-input,
+.new-task-textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--v-border);
+  padding: 6px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #ffffff;
+  color: var(--v-text-main);
+}
+
+.new-task-input::placeholder,
+.new-task-textarea::placeholder {
+  color: var(--v-text-muted);
+}
+
+.new-task-textarea {
+  resize: vertical;
+}
+
+.new-task-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.primary-button {
+  border-radius: 999px;
+  border: 1px solid var(--v-accent);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--v-accent);
+  color: #fff;
+}
+
+.primary-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.ghost-button {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--v-text-muted);
+}
+
+.ghost-button:hover {
+  border-color: var(--v-border);
+}
