@@ -258,3 +258,24 @@
 .ghost-button:hover {
   border-color: var(--v-border);
 }
+
+/* SELECT DE STATUS */
+
+.status-select {
+  margin-top: 6px;
+  border: 1px solid var(--v-border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--v-chip-bg);
+  color: var(--v-text-main);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.status-select:hover,
+.status-select:focus {
+  border-color: var(--v-accent);
+  outline: none;
+}

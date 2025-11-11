@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTasks, createTask } from "../api/tasks";
+import { getTasks, createTask, updateTask } from "../api/tasks";
 import type { Task } from "../api/tasks";
 
 const STATUS_CONFIG: { id: Task["status"]; label: string }[] = [
@@ -19,7 +19,6 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // estado do form de criação
   const [creatingForStatus, setCreatingForStatus] =
     useState<Task["status"] | null>(null);
   const [newTitle, setNewTitle] = useState("");
@@ -34,10 +33,8 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
 
   const filteredTasks = tasks.filter((t) => {
     if (!normalizedSearch) return true;
-
     const title = t.title.toLowerCase();
     const description = (t.description || "").toLowerCase();
-
     return (
       title.includes(normalizedSearch) || description.includes(normalizedSearch)
     );
@@ -47,27 +44,25 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
   }
 
-  function startCreate(status: Task["status"]) {
-    setCreatingForStatus(status);
-    setNewTitle("");
-    setNewDescription("");
-  }
+  async function handleStatusChange(id: number, newStatus: Task["status"]) {
+    try {
+      const task = tasks.find((t) => t.id === id);
+      if (!task) return;
 
-  function cancelCreate() {
-    setCreatingForStatus(null);
-    setNewTitle("");
-    setNewDescription("");
-    setIsCreating(false);
+      const updated = await updateTask(id, { ...task, status: newStatus });
+
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, ...updated } : t))
+      );
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar status da tarefa.");
+    }
   }
 
   async function handleCreateSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!creatingForStatus) return;
-    if (!newTitle.trim()) {
-      alert("O título é obrigatório.");
-      return;
-    }
-
+    if (!creatingForStatus || !newTitle.trim()) return;
     try {
       setIsCreating(true);
       const created = await createTask({
@@ -75,12 +70,14 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
         description: newDescription.trim() || undefined,
         status: creatingForStatus,
       });
-
       setTasks((prev) => [...prev, created]);
-      cancelCreate();
+      setCreatingForStatus(null);
+      setNewTitle("");
+      setNewDescription("");
     } catch (err) {
       console.error(err);
-      alert("Erro ao criar tarefa. Tente novamente.");
+      alert("Erro ao criar tarefa.");
+    } finally {
       setIsCreating(false);
     }
   }
@@ -101,11 +98,9 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-
           <button className="secondary-button" onClick={toggleSort}>
             {sortOrder === "asc" ? "Sort A–Z" : "Sort Z–A"}
           </button>
-
           <button className="secondary-button" onClick={toggleDarkMode}>
             {darkMode ? "☀️ Light" : "🌙 Dark"}
           </button>
@@ -120,7 +115,6 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
             .sort((a, b) => {
               const aTitle = a.title.toLowerCase();
               const bTitle = b.title.toLowerCase();
-
               if (aTitle < bTitle) return sortOrder === "asc" ? -1 : 1;
               if (aTitle > bTitle) return sortOrder === "asc" ? 1 : -1;
               return 0;
@@ -142,14 +136,26 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                     {t.description && (
                       <div className="task-description">{t.description}</div>
                     )}
+
+                    {/* seletor de status */}
+                    <select
+                      className="status-select"
+                      value={t.status}
+                      onChange={(e) =>
+                        handleStatusChange(t.id!, e.target.value as Task["status"])
+                      }
+                    >
+                      {STATUS_CONFIG.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </article>
                 ))}
 
                 {isCreatingHere ? (
-                  <form
-                    className="new-task-form"
-                    onSubmit={handleCreateSubmit}
-                  >
+                  <form className="new-task-form" onSubmit={handleCreateSubmit}>
                     <input
                       className="new-task-input"
                       placeholder="Task title"
@@ -175,7 +181,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                       <button
                         type="button"
                         className="ghost-button"
-                        onClick={cancelCreate}
+                        onClick={() => setCreatingForStatus(null)}
                         disabled={isCreating}
                       >
                         Cancel
@@ -186,7 +192,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                   <button
                     className="add-task-button"
                     type="button"
-                    onClick={() => startCreate(id)}
+                    onClick={() => setCreatingForStatus(id)}
                   >
                     + New
                   </button>
