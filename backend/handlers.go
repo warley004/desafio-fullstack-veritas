@@ -4,18 +4,21 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 )
 
-// Armazenamento em memória (simples e direto)
-// Depois a gente pode evoluir pra JSON em arquivo se der tempo.
+// Armazenamento em memória + persistência em arquivo JSON.
 var (
 	tasks   = make([]Task, 0)
 	nextID  int64 = 1
 	tasksMu sync.Mutex
 )
+
+const dataFile = "data/tasks.json"
 
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
@@ -30,6 +33,75 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, map[string]string{"error": msg})
+}
+
+// Carrega as tarefas de um arquivo JSON (se existir).
+func loadTasksFromFile() error {
+	b, err := os.ReadFile(dataFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// primeira execução, sem arquivo ainda
+			return nil
+		}
+		return err
+	}
+
+	var loaded []Task
+	if err := json.Unmarshal(b, &loaded); err != nil {
+		return err
+	}
+
+	tasks = loaded
+
+	// ajusta nextID com base no maior ID encontrado
+	var maxID int64
+	for _, t := range tasks {
+		if t.ID > maxID {
+			maxID = t.ID
+		}
+	}
+	if maxID > 0 {
+		nextID = maxID + 1
+	}
+
+	return nil
+}
+
+// Salva as tarefas atuais em arquivo JSON.
+// IMPORTANTE: pressupondo que o caller já está segurando tasksMu.
+func saveTasksToFile() {
+	b, err := json.MarshalIndent(tasks, "", "  ")
+	if err != nil {
+		log.Printf("erro ao serializar tarefas: %v", err)
+		return
+	}
+
+	dir := filepath.Dir(dataFile)
+	if dir != "." {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			log.Printf("erro ao criar pasta de dados: %v", err)
+			return
+		}
+	}
+
+	tmp := dataFile + ".tmp"
+
+	if err := os.WriteFile(tmp, b, 0o644); err != nil {
+		log.Printf("erro ao escrever arquivo temporário: %v", err)
+		return
+	}
+
+	if err := os.Rename(tmp, dataFile); err != nil {
+		log.Printf("erro ao mover arquivo de dados: %v", err)
+		return
+	}
+}
+
+// init é chamado automaticamente quando o pacote é carregado.
+func init() {
+	if err := loadTasksFromFile(); err != nil {
+		log.Printf("erro ao carregar tarefas do arquivo: %v", err)
+	}
 }
 
 // /tasks  → GET (listar) e POST (criar)
@@ -98,9 +170,9 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Se não mandar status, cai em TODO por padrão
+	// Se não mandar status, cai em BACKLOG por padrão
 	if strings.TrimSpace(input.Status) == "" {
-    input.Status = StatusBacklog
+		input.Status = StatusBacklog
 	}
 
 	if err := input.Validate(); err != nil {
@@ -114,6 +186,9 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 	input.ID = nextID
 	nextID++
 	tasks = append(tasks, input)
+
+	// persiste em arquivo
+	saveTasksToFile()
 
 	writeJSON(w, http.StatusCreated, input)
 }
@@ -140,6 +215,9 @@ func updateTask(w http.ResponseWriter, r *http.Request, id int64) {
 			tasks[i].Description = input.Description
 			tasks[i].Status = input.Status
 
+			// persiste em arquivo
+			saveTasksToFile()
+
 			writeJSON(w, http.StatusOK, tasks[i])
 			return
 		}
@@ -156,6 +234,10 @@ func deleteTask(w http.ResponseWriter, r *http.Request, id int64) {
 		if tasks[i].ID == id {
 			// remove o elemento i da slice
 			tasks = append(tasks[:i], tasks[i+1:]...)
+
+			// persiste em arquivo
+			saveTasksToFile()
+
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}

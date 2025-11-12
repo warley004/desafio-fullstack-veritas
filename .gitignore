@@ -11,9 +11,11 @@ vendor/
 *.exe
 *.log
 *.out
+backend/data
 
 # IDE / Sistema
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+
