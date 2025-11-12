@@ -4,9 +4,9 @@ import type { Task } from "../api/tasks";
 
 const STATUS_CONFIG: { id: Task["status"]; label: string }[] = [
   { id: "BACKLOG", label: "Backlog" },
-  { id: "TODO", label: "To Do" },
-  { id: "DOING", label: "In Progress" },
-  { id: "DONE", label: "Done" },
+  { id: "TODO", label: "A Fazer" },
+  { id: "DOING", label: "Em Progresso" },
+  { id: "DONE", label: "Concluído" },
 ];
 
 interface BoardProps {
@@ -25,6 +25,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [createTitleError, setCreateTitleError] = useState("");
 
   // edição (modal)
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -32,6 +33,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
   const [editDescription, setEditDescription] = useState("");
   const [editStatus, setEditStatus] = useState<Task["status"]>("BACKLOG");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editTitleError, setEditTitleError] = useState("");
 
   // drag and drop
   const [draggingId, setDraggingId] = useState<number | null>(null);
@@ -123,6 +125,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
     setCreatingForStatus(status);
     setNewTitle("");
     setNewDescription("");
+    setCreateTitleError("");
   }
 
   function cancelCreate() {
@@ -130,17 +133,19 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
     setNewTitle("");
     setNewDescription("");
     setIsCreating(false);
+    setCreateTitleError("");
   }
 
   async function handleCreateSubmit(e: any) {
     e.preventDefault();
     if (!creatingForStatus) return;
     if (!newTitle.trim()) {
-      alert("O título é obrigatório.");
+      setCreateTitleError("Título é requerido.");
       return;
     }
 
     try {
+      setCreateTitleError("");
       setIsCreating(true);
       const created = await createTask({
         title: newTitle.trim(),
@@ -177,23 +182,26 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
     setEditTitle(task.title);
     setEditDescription(task.description ?? "");
     setEditStatus(task.status);
+    setEditTitleError("");
   }
 
   function closeEdit() {
     setEditingTask(null);
     setEditTitle("");
     setEditDescription("");
+    setEditTitleError("");
   }
 
   async function handleEditSubmit(e: any) {
     e.preventDefault();
     if (!editingTask) return;
     if (!editTitle.trim()) {
-      alert("O título é obrigatório.");
+      setEditTitleError("Título é requerido.");
       return;
     }
 
     try {
+      setEditTitleError("");
       setIsSavingEdit(true);
       const updated = await updateTask(editingTask.id!, {
         ...editingTask,
@@ -253,11 +261,11 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
               </span>
               <input
                 className="search-input"
-                placeholder="Search tasks"
+                placeholder="Pesquisar tarefas"
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="Search tasks"
+                aria-label="Pesquisar tarefas"
               />
             </div>
             <div className="board-actions">
@@ -390,12 +398,35 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                       onSubmit={handleCreateSubmit}
                     >
                       <input
-                        className="new-task-input"
+                        className={
+                          "new-task-input" + (createTitleError ? " input-error" : "")
+                        }
                         placeholder="Task title"
                         value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
+                        aria-invalid={createTitleError ? "true" : "false"}
+                        aria-describedby={
+                          createTitleError
+                            ? `create-title-error-${id.toLowerCase()}`
+                            : undefined
+                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setNewTitle(value);
+                          if (createTitleError && value.trim()) {
+                            setCreateTitleError("");
+                          }
+                        }}
                         autoFocus
                       />
+                      {createTitleError && (
+                        <span
+                          className="field-error"
+                          role="alert"
+                          id={`create-title-error-${id.toLowerCase()}`}
+                        >
+                          {createTitleError}
+                        </span>
+                      )}
                       <textarea
                         className="new-task-textarea"
                         placeholder="Description (optional)"
@@ -459,11 +490,32 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                   <label>
                     <span className="modal-label">Title</span>
                     <input
-                      className="new-task-input"
+                      className={
+                        "new-task-input" + (editTitleError ? " input-error" : "")
+                      }
                       value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
+                      aria-invalid={editTitleError ? "true" : "false"}
+                      aria-describedby={
+                        editTitleError ? "edit-title-error" : undefined
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEditTitle(value);
+                        if (editTitleError && value.trim()) {
+                          setEditTitleError("");
+                        }
+                      }}
                     />
                   </label>
+                  {editTitleError && (
+                    <span
+                      className="field-error"
+                      role="alert"
+                      id="edit-title-error"
+                    >
+                      {editTitleError}
+                    </span>
+                  )}
                 </div>
 
                 <div className="modal-field">

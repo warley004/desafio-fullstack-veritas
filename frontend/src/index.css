@@ -28,6 +28,9 @@
   --v-shadow-soft: 0 12px 24px rgba(18, 30, 52, 0.12);
   --v-column-shadow: 0 26px 42px rgba(18, 31, 54, 0.12);
   --v-shadow-card: 0 24px 36px rgba(15, 23, 42, 0.12);
+  --v-error: #b42318;
+  --v-error-soft: rgba(180, 35, 24, 0.12);
+  --v-error-ring: rgba(180, 35, 24, 0.18);
 }
 
 body.dark {
@@ -58,6 +61,9 @@ body.dark {
   --v-shadow-soft: 0 20px 32px rgba(4, 10, 24, 0.6);
   --v-column-shadow: 0 30px 44px rgba(2, 8, 24, 0.65);
   --v-shadow-card: 0 28px 40px rgba(5, 12, 28, 0.6);
+  --v-error: #f38b73;
+  --v-error-soft: rgba(243, 139, 115, 0.18);
+  --v-error-ring: rgba(243, 139, 115, 0.26);
 }
 
 /* Base */
