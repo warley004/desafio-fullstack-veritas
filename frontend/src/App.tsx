@@ -1,0 +1,28 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+import Board from "./pages/Board";
+
+export default function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle("dark", darkMode);
+  }, [darkMode]);
+
+  const BoardAny = Board as any;
+
+  return (
+    <div className="app">
+      <main
+        className="board-wrapper"
+        role="main"
+        aria-label="Kanban board workspace"
+      >
+        <BoardAny
+          darkMode={darkMode}
+          toggleDarkMode={() => setDarkMode((d) => !d)}
+        />
+      </main>
+    </div>
+  );
+}
