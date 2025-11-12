@@ -14,7 +14,11 @@ export default function App() {
 
   return (
     <div className="app">
-      <main className="board-wrapper">
+      <main
+        className="board-wrapper"
+        role="main"
+        aria-label="Kanban board workspace"
+      >
         <BoardAny
           darkMode={darkMode}
           toggleDarkMode={() => setDarkMode((d) => !d)}

@@ -44,6 +44,51 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
   }, []);
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
+  const sortLabel = sortOrder === "asc" ? "Sort A–Z" : "Sort Z–A";
+  const themeLabel = darkMode ? "Light mode" : "Dark mode";
+  const sortIcon = (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6.25 3.75h2.5a.75.75 0 000-1.5h-6a.75.75 0 000 1.5h2.5v9.19l-1.22-1.22a.75.75 0 00-1.06 1.06l2.5 2.5a.75.75 0 001.06 0l2.5-2.5a.75.75 0 00-1.06-1.06l-1.22 1.22V3.75zM13.75 12.25h-2.5a.75.75 0 000 1.5h6a.75.75 0 000-1.5h-2.5V3.06l1.22 1.22a.75.75 0 001.06-1.06l-2.5-2.5a.75.75 0 00-1.06 0l-2.5 2.5a.75.75 0 101.06 1.06l1.22-1.22v9.19z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+  const sunIcon = (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="10" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M10 2.25v1.5M10 16.25v1.5M3.75 10h-1.5M17.75 10h-1.5M4.64 4.64l1.06 1.06M14.3 14.3l1.06 1.06M4.64 15.36l1.06-1.06M14.3 5.7l1.06-1.06"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+  const moonIcon = (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M16.5 11.18A6.5 6.5 0 019.06 3.5a6.02 6.02 0 107.44 7.68z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+  const themeIcon = darkMode ? sunIcon : moonIcon;
 
   const filteredTasks = tasks.filter((t) => {
     if (!normalizedSearch) return true;
@@ -191,24 +236,53 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
       <div className="board">
         <header className="board-header">
           <div className="board-header-left">
+            <span className="board-eyebrow">Veritas Workspace</span>
             <h1 className="board-title">Kanban</h1>
-            <span className="board-subtitle">Veritas</span>
+            <span className="board-subtitle">Project Name · Team Name</span>
           </div>
 
           <div className="board-header-right">
-            <input
-              className="search-input"
-              placeholder="Search"
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="secondary-button" onClick={toggleSort}>
-              {sortOrder === "asc" ? "Sort A–Z" : "Sort Z–A"}
-            </button>
-            <button className="secondary-button" onClick={toggleDarkMode}>
-              {darkMode ? "☀️ Light" : "🌙 Dark"}
-            </button>
+            <div className="search-field">
+              <span className="search-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M14.318 13.25a6 6 0 10-1.06 1.06l3.996 3.997a.75.75 0 101.06-1.06l-3.996-3.997zM13.5 9a4.5 4.5 0 11-9.001-.001A4.5 4.5 0 0113.5 9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              <input
+                className="search-input"
+                placeholder="Search tasks"
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search tasks"
+              />
+            </div>
+            <div className="board-actions">
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={toggleSort}
+              >
+                <span className="button-icon" aria-hidden="true">
+                  {sortIcon}
+                </span>
+                {sortLabel}
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={toggleDarkMode}
+                aria-pressed={darkMode}
+              >
+                <span className="button-icon" aria-hidden="true">
+                  {themeIcon}
+                </span>
+                {themeLabel}
+              </button>
+            </div>
           </div>
         </header>
 
@@ -246,7 +320,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
                       setDragOverStatus(id);
                     }
                   }}
-                  onDragLeave={(e) => {
+                  onDragLeave={() => {
                     if (dragOverStatus === id) {
                       setDragOverStatus(null);
                     }

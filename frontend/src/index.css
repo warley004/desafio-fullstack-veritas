@@ -1,51 +1,72 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  /* Paleta Veritas-inspired (sóbria, corporativa) */
-  --v-page-bg: #f5f5f7;
-  --v-grid-line: rgba(15, 23, 42, 0.04);
+  color-scheme: light;
+  --v-page-bg: #f7f8fb;
+  --v-grid-line: rgba(27, 36, 54, 0.05);
 
   --v-board-bg: #ffffff;
-  --v-board-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  --v-board-shadow: 0 28px 56px rgba(18, 30, 52, 0.15);
+  --v-board-glow: 1;
 
-  --v-primary: #111827;        /* textos principais */
-  --v-accent: #c09f80;         /* toque quente (botões/bordas) */
+  --v-primary: #101d3b;
+  --v-accent: #c89b63;
 
-  --v-chip-bg: #edf1f7;        /* chips, botõezinhos */
-  --v-column-bg: #f5f7fb;
+  --v-chip-bg: #f3f5f8;
+  --v-chip-hover: #f0f2f6;
+  --v-column-bg: rgba(255, 255, 255, 0.88);
+  --v-column-highlight: rgba(200, 155, 99, 0.14);
   --v-task-bg: #ffffff;
 
-  --v-text-main: #111827;
-  --v-text-muted: #6b7280;
-  --v-border: #e5e7eb;
+  --v-text-main: #1f2937;
+  --v-text-muted: #67718a;
+  --v-border: #dfe4ec;
+  --v-border-strong: #c9d1dd;
+
+  --v-focus-ring: rgba(200, 155, 99, 0.22);
+  --v-surface-elevated: #ffffff;
+  --v-shadow-soft: 0 12px 24px rgba(18, 30, 52, 0.12);
+  --v-column-shadow: 0 26px 42px rgba(18, 31, 54, 0.12);
+  --v-shadow-card: 0 24px 36px rgba(15, 23, 42, 0.12);
 }
 
 body.dark {
-  /* Mesmas estruturas, mas em dark */
-  --v-page-bg: #020617;
-  --v-grid-line: rgba(148, 163, 184, 0.12);
+  color-scheme: dark;
+  --v-page-bg: #050c1c;
+  --v-grid-line: rgba(148, 163, 184, 0.08);
 
-  --v-board-bg: #020617;
-  --v-board-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  --v-board-bg: rgba(6, 13, 28, 0.92);
+  --v-board-shadow: 0 36px 72px rgba(0, 0, 0, 0.65);
+  --v-board-glow: 0;
 
-  --v-primary: #e5e7eb;
-  --v-accent: #c09f80;
+  --v-primary: #f5f7fa;
+  --v-accent: #d2a871;
 
-  --v-chip-bg: #0f172a;
-  --v-column-bg: #020617;
-  --v-task-bg: #020617;
+  --v-chip-bg: rgba(18, 27, 46, 0.85);
+  --v-chip-hover: rgba(27, 38, 59, 0.9);
+  --v-column-bg: rgba(12, 19, 36, 0.95);
+  --v-column-highlight: rgba(210, 168, 113, 0.22);
+  --v-task-bg: rgba(16, 24, 42, 0.95);
 
-  --v-text-main: #e5e7eb;
-  --v-text-muted: #9ca3af;
-  --v-border: #1f2937;
+  --v-text-main: #f8fafc;
+  --v-text-muted: #a7b3ce;
+  --v-border: rgba(67, 84, 118, 0.6);
+  --v-border-strong: rgba(128, 146, 176, 0.7);
+
+  --v-focus-ring: rgba(210, 168, 113, 0.28);
+  --v-surface-elevated: rgba(16, 24, 42, 0.95);
+  --v-shadow-soft: 0 20px 32px rgba(4, 10, 24, 0.6);
+  --v-column-shadow: 0 30px 44px rgba(2, 8, 24, 0.65);
+  --v-shadow-card: 0 28px 40px rgba(5, 12, 28, 0.6);
 }
 
 /* Base */
 :root {
-  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   color: var(--v-text-main);
   background-color: var(--v-page-bg);
+  line-height: 1.6;
 }
 
 *,
@@ -54,11 +75,58 @@ body.dark {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
   background-color: var(--v-page-bg);
+  color: var(--v-text-main);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+body {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(200, 155, 99, 0.28);
+  color: var(--v-primary);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
 }
 
 button {
-  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+
+textarea {
+  line-height: 1.5;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 155, 99, 0.55);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: rgba(210, 168, 113, 0.65);
+  border-color: rgba(8, 15, 32, 0.4);
 }
