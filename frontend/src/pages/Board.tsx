@@ -192,7 +192,7 @@ export default function Board({ darkMode, toggleDarkMode }: BoardProps) {
         <header className="board-header">
           <div className="board-header-left">
             <h1 className="board-title">Kanban</h1>
-            <span className="board-subtitle">Project Name · Team Name</span>
+            <span className="board-subtitle">Veritas</span>
           </div>
 
           <div className="board-header-right">
