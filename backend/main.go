@@ -9,12 +9,10 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
-	// Rota de saúde
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "OK")
 	})
 
-	// Rotas da API de tarefas
 	mux.HandleFunc("/tasks", tasksHandler)
 	mux.HandleFunc("/tasks/", taskByIDHandler)
 
@@ -26,7 +24,6 @@ func main() {
 	}
 }
 
-// Middleware simples de CORS, pra liberar o frontend depois
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")

@@ -137,7 +137,7 @@ Todos os endpoints respondem e aceitam JSON.
 
 ## Funcionalidades
 
-- Quatro colunas fixas: **Backlog**, **To Do**, **In Progress**, **Done**.
+- Quatro colunas fixas: **Backlog**, **A Fazer**, **Em Progresso**, **Concluído**.
 - Criacao inline por coluna (`+ New`).
 - Modal de edicao com titulo, descricao e status.
 - Exclusao com confirmacao nativa (`window.confirm`).
@@ -152,6 +152,7 @@ Todos os endpoints respondem e aceitam JSON.
 - Persistencia local em JSON com escrita segura.
 - Dark mode refinado inspirado na identidade da Veritas.
 - Busca e ordenacao como facilitadores de produtividade.
+- Coluna de Backlog
 
 ## Decisoes Tecnicas
 

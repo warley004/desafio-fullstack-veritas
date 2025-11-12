@@ -5,7 +5,6 @@ import Board from "./pages/Board";
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
 
-  // aplica classe no body
   useEffect(() => {
     document.body.classList.toggle("dark", darkMode);
   }, [darkMode]);

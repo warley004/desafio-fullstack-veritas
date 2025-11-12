@@ -35,12 +35,10 @@ func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, map[string]string{"error": msg})
 }
 
-// Carrega as tarefas de um arquivo JSON (se existir).
 func loadTasksFromFile() error {
 	b, err := os.ReadFile(dataFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			// primeira execução, sem arquivo ainda
 			return nil
 		}
 		return err
@@ -53,7 +51,6 @@ func loadTasksFromFile() error {
 
 	tasks = loaded
 
-	// ajusta nextID com base no maior ID encontrado
 	var maxID int64
 	for _, t := range tasks {
 		if t.ID > maxID {
@@ -67,8 +64,6 @@ func loadTasksFromFile() error {
 	return nil
 }
 
-// Salva as tarefas atuais em arquivo JSON.
-// IMPORTANTE: pressupondo que o caller já está segurando tasksMu.
 func saveTasksToFile() {
 	b, err := json.MarshalIndent(tasks, "", "  ")
 	if err != nil {
@@ -97,14 +92,12 @@ func saveTasksToFile() {
 	}
 }
 
-// init é chamado automaticamente quando o pacote é carregado.
 func init() {
 	if err := loadTasksFromFile(); err != nil {
 		log.Printf("erro ao carregar tarefas do arquivo: %v", err)
 	}
 }
 
-// /tasks  → GET (listar) e POST (criar)
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -117,7 +110,6 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// /tasks/{id} → PUT (atualizar) e DELETE (remover)
 func taskByIDHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/tasks/")
 	if idStr == "" {
@@ -146,7 +138,6 @@ func listTasks(w http.ResponseWriter, r *http.Request) {
 	tasksMu.Lock()
 	defer tasksMu.Unlock()
 
-	// opcional: filtro por status ?status=TODO
 	statusFilter := strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("status")))
 
 	result := tasks
@@ -170,7 +161,6 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Se não mandar status, cai em BACKLOG por padrão
 	if strings.TrimSpace(input.Status) == "" {
 		input.Status = StatusBacklog
 	}
@@ -187,7 +177,6 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 	nextID++
 	tasks = append(tasks, input)
 
-	// persiste em arquivo
 	saveTasksToFile()
 
 	writeJSON(w, http.StatusCreated, input)
@@ -200,7 +189,6 @@ func updateTask(w http.ResponseWriter, r *http.Request, id int64) {
 		return
 	}
 
-	// Obrigamos mandar título e status na atualização
 	if err := input.Validate(); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
@@ -215,7 +203,6 @@ func updateTask(w http.ResponseWriter, r *http.Request, id int64) {
 			tasks[i].Description = input.Description
 			tasks[i].Status = input.Status
 
-			// persiste em arquivo
 			saveTasksToFile()
 
 			writeJSON(w, http.StatusOK, tasks[i])
@@ -232,10 +219,8 @@ func deleteTask(w http.ResponseWriter, r *http.Request, id int64) {
 
 	for i := range tasks {
 		if tasks[i].ID == id {
-			// remove o elemento i da slice
 			tasks = append(tasks[:i], tasks[i+1:]...)
 
-			// persiste em arquivo
 			saveTasksToFile()
 
 			w.WriteHeader(http.StatusNoContent)
